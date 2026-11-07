@@ -239,6 +239,11 @@ class Store:
         created_at: str | None = None,
     ) -> None:
         with self._lock, self._conn:
+            # 카카오톡 메시지 하나는 텔레그램 메시지 하나에만 대응한다(수정 대상이 흔들리지 않게).
+            self._conn.execute(
+                "DELETE FROM deliveries WHERE kakao_chat_id = ? AND kakao_message_id = ?",
+                (str(kakao_chat_id), str(kakao_message_id)),
+            )
             self._conn.execute(
                 "INSERT INTO deliveries (telegram_chat_id, telegram_message_id, kakao_chat_id, "
                 "kakao_message_id, seq, created_at) VALUES (?, ?, ?, ?, ?, ?) "

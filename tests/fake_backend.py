@@ -57,7 +57,7 @@ class FakeBackend:
     def __enter__(self) -> FakeBackend:
         self._server = ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
         self._server.app = self  # type: ignore[attr-defined]
-        self._thread = threading.Thread(target=self._server.serve_forever, daemon=True)
+        self._thread = threading.Thread(target=self._server.serve_forever, args=(0.01,), daemon=True)
         self._thread.start()
         return self
 
