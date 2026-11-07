@@ -1,0 +1,14 @@
+.venv/
+.uv-cache/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.DS_Store
+build/
+dist/
+*.egg-info/
+
+# 로컬 비밀·상태 파일 (설정은 ~/.config 에 있지만, 실수로 만든 사본을 막는다)
+config.toml
+.env
+*.sqlite3
