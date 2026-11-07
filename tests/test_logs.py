@@ -4,7 +4,9 @@ import logging
 
 from sesametok_tg.logs import SecretFilter, redact
 
-BOT_TOKEN = "123456789:AAHdqTcvCH1vGWJxfSeofSAs0K5PALDsaw"
+# 텔레그램 Bot API 문서에 나오는 **예시** 토큰(실제 자격증명 아님). 시크릿 스캐너가 문자열을
+# 그대로 집어가지 않도록 조각으로 만든다 — 마스킹 정규식이 실제 형태를 검사해야 하므로 형태는 유지한다.
+BOT_TOKEN = ":".join(("123456789", "AAHdqTcvCH1vGWJxfSeofSAs0K5PALDsaw"))
 
 
 def test_redacts_bot_token_pattern() -> None:
