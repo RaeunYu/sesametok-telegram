@@ -131,9 +131,10 @@ CREATE INDEX deliveries_kakao ON deliveries(kakao_chat_id, kakao_message_id);
    그 그룹에 **1회** 안내(상태 플래그로 반복 방지).
 7. `send.result`: 같은 `client_request_id`의 상태 메시지가 있으면 결과 반영(보조 신호).
 
-**갭 감지**: `seq != last_seq + 1`이면 ① `Last-Event-ID=last_seq` 재접속 ② 바인딩된 방마다
-`GET /v1/rooms/{id}/messages?since=<방 커서>`로 보정(최대 200건), `deliveries`로 중복 제거.
-보정 실패 시 **1회만** 경고.
+**갭 감지**: `seq != last_seq + 1`이면 ① **연결을 끊고 `Last-Event-ID=last_seq`로 재접속**한다 —
+서버가 아카이브에서 재생하므로 끊긴 구간이 그대로 메워진다(라이브 확인: `?since=0`이 6,041개를
+seq 연속으로 재생). ② `409 event_replay_unavailable`(prune 이후)일 때만 바인딩된 방마다
+`GET /v1/rooms/{id}/messages?since=<방 커서>`로 REST 보정하고 헤드에서 재구독한다.
 
 **에코 억제**: `origin_client_request_id`가 **null이 아니면 전달하지 않음**.
 (백엔드는 이 필드를 이 백엔드의 발신 요청에만 채우므로, 재시작으로 내 요청 id 집합을 잃어도 안전.)
@@ -227,7 +228,7 @@ CREATE INDEX deliveries_kakao ON deliveries(kakao_chat_id, kakao_message_id);
 |---|---|---|---|
 | **M0** | uv 프로젝트, `config.py`, 로깅(본문 마스킹), CLI 골격, `.gitignore` | `uv run sesametok-telegram --help` | ✅ 완료 (2026-11-07) |
 | **M1** | `backend/client.py` + 가짜 백엔드 스텁 + 계약 테스트 | 스텁 대상 전 엔드포인트 테스트 통과 | ✅ 완료 (2026-11-07, 29 passed) |
-| **M2** | `store.py` + `backend/stream.py` + 갭 감지 + 재연결 | 재연결·갭 시나리오 테스트 통과 | 대기 |
+| **M2** | `store.py` + `backend/stream.py` + 갭 감지 + 재연결 | 재연결·갭 시나리오 테스트 통과 | ✅ 완료 (2026-11-07, 50 passed) |
 | **M3** | `render.py` + 인바운드 파이프라인 + 바인딩(`/link`) + 그룹 전송 | 노출·연결된 방만 도착, 미연결·에코는 무시 | 대기 |
 | **M4** | 발신 파이프라인 + 상태 메시지 + 오류 매핑 | 오류 코드별 상태 메시지 테스트 통과 | 대기 |
 | **M5** | `setup` CLI, LaunchAgent, DM 컨트롤 패널, README | 문서만 보고 설치·동작 | 대기 |
